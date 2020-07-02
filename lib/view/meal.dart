@@ -192,4 +192,10 @@ class ShowSlidesState extends State<ShowSlides> {
       );
     }
   }
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    throw UnimplementedError();
+  }
 }
