@@ -73,6 +73,9 @@ class IntroSlider extends StatefulWidget {
   /// Change NEXT to any text you want
   final String nameNextBtn;
 
+  /// Show or hide NEXT button
+  final bool isShowNextBtn;
+
   // ---------- DONE button ----------
   /// Change DONE to any text you want
   final String nameDoneBtn;
@@ -175,6 +178,7 @@ class IntroSlider extends StatefulWidget {
     // Next
     this.renderNextBtn,
     this.nameNextBtn,
+    this.isShowNextBtn,
 
     // Dots
     this.isShowDotIndicator,
@@ -235,6 +239,7 @@ class IntroSlider extends StatefulWidget {
       // Next
       renderNextBtn: this.renderNextBtn,
       nameNextBtn: this.nameNextBtn,
+      isShowNextBtn: this.isShowNextBtn,
 
       // Dots
       isShowDotIndicator: this.isShowDotIndicator,
@@ -361,6 +366,9 @@ class IntroSliderState extends State<IntroSlider>
   /// Change NEXT to any text you want
   String nameNextBtn;
 
+  /// Show or hide NEXT button
+  bool isShowNextBtn;
+
   // ---------- Dot indicator ----------
   /// Show or hide dot indicator
   bool isShowDotIndicator = true;
@@ -435,6 +443,7 @@ class IntroSliderState extends State<IntroSlider>
     // Next button
     @required this.nameNextBtn,
     @required this.renderNextBtn,
+    @required this.isShowNextBtn,
 
     // Dot indicator
     @required this.isShowDotIndicator,
@@ -533,7 +542,7 @@ class IntroSliderState extends State<IntroSlider>
             }
 
             double diffValueAnimation =
-                (tabController.animation.value - currentAnimationValue).abs();
+            (tabController.animation.value - currentAnimationValue).abs();
             int diffValueIndex = (currentTabIndex - tabController.index).abs();
 
             // When press skip button
@@ -660,6 +669,10 @@ class IntroSliderState extends State<IntroSlider>
       isShowDoneBtn = true;
     }
 
+    if (isShowNextBtn == null) {
+      isShowNextBtn = true;
+    }
+
     // Done button
     if (onDonePress == null) {
       onDonePress = () {};
@@ -704,10 +717,16 @@ class IntroSliderState extends State<IntroSlider>
     }
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    tabController.dispose();
+  }
+
   // Checking if tab is animating
   bool isAnimating(value) {
     return tabController.animation.value -
-            tabController.animation.value.truncate() !=
+        tabController.animation.value.truncate() !=
         0;
   }
 
@@ -815,58 +834,57 @@ class IntroSliderState extends State<IntroSlider>
             width: isShowSkipBtn
                 ? widthSkipBtn ?? MediaQuery.of(context).size.width / 4
                 : (isShowPrevBtn
-                    ? widthPrevBtn
-                    : MediaQuery.of(context).size.width / 4),
+                ? widthPrevBtn
+                : MediaQuery.of(context).size.width / 4),
           ),
 
           // Dot indicator
           Flexible(
             child: isShowDotIndicator
                 ? Container(
-                    child: Stack(
-                      children: <Widget>[
-                        Row(
-                          children: this.renderListDots(),
-                          mainAxisAlignment: MainAxisAlignment.center,
-                        ),
-                        typeDotAnimation == dotSliderAnimation.DOT_MOVEMENT
-                            ? Center(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      color: colorActiveDot,
-                                      borderRadius:
-                                          BorderRadius.circular(sizeDot / 2)),
-                                  width: sizeDot,
-                                  height: sizeDot,
-                                  margin: EdgeInsets.only(
-                                      left: this.isRTLLanguage(
-                                              Localizations.localeOf(context)
-                                                  .languageCode)
-                                          ? marginRightDotFocused
-                                          : marginLeftDotFocused,
-                                      right: this.isRTLLanguage(
-                                              Localizations.localeOf(context)
-                                                  .languageCode)
-                                          ? marginLeftDotFocused
-                                          : marginRightDotFocused),
-                                ),
-                              )
-                            : Container()
-                      ],
+              child: Stack(
+                children: <Widget>[
+                  Row(
+                    children: this.renderListDots(),
+                    mainAxisAlignment: MainAxisAlignment.center,
+                  ),
+                  typeDotAnimation == dotSliderAnimation.DOT_MOVEMENT
+                      ? Center(
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: colorActiveDot,
+                          borderRadius:
+                          BorderRadius.circular(sizeDot / 2)),
+                      width: sizeDot,
+                      height: sizeDot,
+                      margin: EdgeInsets.only(
+                          left: this.isRTLLanguage(
+                              Localizations.localeOf(context)
+                                  .languageCode)
+                              ? marginRightDotFocused
+                              : marginLeftDotFocused,
+                          right: this.isRTLLanguage(
+                              Localizations.localeOf(context)
+                                  .languageCode)
+                              ? marginLeftDotFocused
+                              : marginRightDotFocused),
                     ),
                   )
+                      : Container()
+                ],
+              ),
+            )
                 : Container(),
           ),
 
           // Next, Done button
           Container(
             alignment: Alignment.center,
-            child: isShowDoneBtn
-                ? (tabController.index + 1 == slides.length
-                    ? buildDoneButton()
-                    : buildNextButton())
-                : Container(),
+            child: tabController.index + 1 == slides.length
+                ? isShowDoneBtn ? buildDoneButton() : Container()
+                : isShowNextBtn ? buildNextButton() : Container(),
             width: widthDoneBtn ?? MediaQuery.of(context).size.width / 4,
+            height: 50,
           ),
         ],
       ),
@@ -913,73 +931,73 @@ class IntroSliderState extends State<IntroSlider>
   }
 
   Widget renderTab(
-    // Title
-    Widget widgetTitle,
-    String title,
-    int maxLineTitle,
-    TextStyle styleTitle,
-    EdgeInsets marginTitle,
+      // Title
+      Widget widgetTitle,
+      String title,
+      int maxLineTitle,
+      TextStyle styleTitle,
+      EdgeInsets marginTitle,
 
-    // Description
-    Widget widgetDescription,
-    String description,
-    int maxLineTextDescription,
-    TextStyle styleDescription,
-    EdgeInsets marginDescription,
+      // Description
+      Widget widgetDescription,
+      String description,
+      int maxLineTextDescription,
+      TextStyle styleDescription,
+      EdgeInsets marginDescription,
 
-    // Image
-    String pathImage,
-    double widthImage,
-    double heightImage,
-    BoxFit foregroundImageFit,
+      // Image
+      String pathImage,
+      double widthImage,
+      double heightImage,
+      BoxFit foregroundImageFit,
 
-    // Center Widget
-    Widget centerWidget,
-    Function onCenterItemPress,
+      // Center Widget
+      Widget centerWidget,
+      Function onCenterItemPress,
 
-    // Background color
-    Color backgroundColor,
-    Color colorBegin,
-    Color colorEnd,
-    AlignmentGeometry directionColorBegin,
-    AlignmentGeometry directionColorEnd,
+      // Background color
+      Color backgroundColor,
+      Color colorBegin,
+      Color colorEnd,
+      AlignmentGeometry directionColorBegin,
+      AlignmentGeometry directionColorEnd,
 
-    // Background image
-    String backgroundImage,
-    BoxFit backgroundImageFit,
-    double backgroundOpacity,
-    Color backgroundOpacityColor,
-    BlendMode backgroundBlendMode,
-  ) {
+      // Background image
+      String backgroundImage,
+      BoxFit backgroundImageFit,
+      double backgroundOpacity,
+      Color backgroundOpacityColor,
+      BlendMode backgroundBlendMode,
+      ) {
     return Container(
       width: double.infinity,
       height: double.infinity,
       decoration: backgroundImage != null
           ? BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(backgroundImage),
-                fit: backgroundImageFit ?? BoxFit.cover,
-                colorFilter: ColorFilter.mode(
-                  backgroundOpacityColor != null
-                      ? backgroundOpacityColor
-                          .withOpacity(backgroundOpacity ?? 0.5)
-                      : Colors.black.withOpacity(backgroundOpacity ?? 0.5),
-                  backgroundBlendMode ?? BlendMode.darken,
-                ),
-              ),
-            )
+        image: DecorationImage(
+          image: AssetImage(backgroundImage),
+          fit: backgroundImageFit ?? BoxFit.cover,
+          colorFilter: ColorFilter.mode(
+            backgroundOpacityColor != null
+                ? backgroundOpacityColor
+                .withOpacity(backgroundOpacity ?? 0.5)
+                : Colors.black.withOpacity(backgroundOpacity ?? 0.5),
+            backgroundBlendMode ?? BlendMode.darken,
+          ),
+        ),
+      )
           : BoxDecoration(
-              gradient: LinearGradient(
-                colors: backgroundColor != null
-                    ? [backgroundColor, backgroundColor]
-                    : [
-                        colorBegin ?? Colors.amberAccent,
-                        colorEnd ?? Colors.amberAccent
-                      ],
-                begin: directionColorBegin ?? Alignment.topLeft,
-                end: directionColorEnd ?? Alignment.bottomRight,
-              ),
-            ),
+        gradient: LinearGradient(
+          colors: backgroundColor != null
+              ? [backgroundColor, backgroundColor]
+              : [
+            colorBegin ?? Colors.amberAccent,
+            colorEnd ?? Colors.amberAccent
+          ],
+          begin: directionColorBegin ?? Alignment.topLeft,
+          end: directionColorEnd ?? Alignment.bottomRight,
+        ),
+      ),
       child: Container(
         margin: EdgeInsets.only(bottom: 60.0),
         child: ListView(
@@ -1008,11 +1026,11 @@ class IntroSliderState extends State<IntroSlider>
             GestureDetector(
               child: pathImage != null
                   ? Image.asset(
-                      pathImage,
-                      width: widthImage ?? 200.0,
-                      height: heightImage ?? 200.0,
-                      fit: foregroundImageFit ?? BoxFit.contain,
-                    )
+                pathImage,
+                width: widthImage ?? 200.0,
+                height: heightImage ?? 200.0,
+                fit: foregroundImageFit ?? BoxFit.contain,
+              )
                   : Center(child: centerWidget ?? Container()),
               onTap: onCenterItemPress,
             ),

@@ -117,8 +117,11 @@ class ShowSlidesState extends State<ShowSlides> {
       meal = '[] [] []';
     }
     print(meal);
-    meal = meal.replaceAll('\n', ' ');
-
+    meal = meal.replaceAll('\n', '\n');
+    meal = meal.replaceAll('.', '');
+    for(int i=0;i<20;i++){
+      meal = meal.replaceAll(i.toString(), '');
+    }
 
     print(meal);
     List check = new List(3);
@@ -140,25 +143,27 @@ class ShowSlidesState extends State<ShowSlides> {
       new Slide (
         title: "Morning",
         styleTitle: TextStyle(
-            color: Colors.lightGreen,
-            fontSize: 30.0,
+            color: Colors.orangeAccent,
+            fontSize: 35.0,
             fontWeight: FontWeight.bold,
             fontFamily: 'RobotoMono'),
         description: morning,
         styleDescription: TextStyle(
             color: Colors.black,
             fontSize: 20.0,
+            height: 1.2,
             fontStyle: FontStyle.normal,
             fontFamily: 'Raleway'),
-        pathImage: "assets/white.png",
+        pathImage: "assets/morning.png",
+        backgroundColor: Color(0xfff5a623),
       ),
     );
     slides.add(
       new Slide(
         title: "Lunch",
         styleTitle: TextStyle(
-            color: Colors.lightGreen,
-            fontSize: 30.0,
+            color: Colors.deepOrangeAccent,
+            fontSize: 35.0,
             fontWeight: FontWeight.bold,
             fontFamily: 'RobotoMono'),
         description:
@@ -166,24 +171,32 @@ class ShowSlidesState extends State<ShowSlides> {
         styleDescription: TextStyle(
             color: Colors.black,
             fontSize: 20.0,
+            height: 1.2,
             fontStyle: FontStyle.normal,
             fontFamily: 'Raleway'),
-        pathImage: "assets/white.png",
+        pathImage: "assets/lunch.png",
       ),
     );
     slides.add(
       new Slide(
         title: "Dinner",
         styleTitle:
-            TextStyle(color: Color(0xffD02090), fontSize: 30.0, fontWeight: FontWeight.bold, fontFamily: 'RobotoMono'),
+            TextStyle(
+                color: Colors.redAccent,
+                fontSize: 35.0,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'RobotoMono'),
         description:
         Dinner,
         styleDescription: TextStyle(
             color: Colors.black,
             fontSize: 20.0,
+            height: 1.2,
             fontStyle: FontStyle.normal,
             fontFamily: 'Raleway'),
-        pathImage: "assets/white.png",
+        pathImage: "assets/dinner.png",
+        colorBegin: Color(0xffFFDAB9),
+        colorEnd: Color(0xff40E0D0),
       ),
     );
   }
@@ -192,39 +205,9 @@ class ShowSlidesState extends State<ShowSlides> {
       child: Text("Error appeared."),
     );
   }
-  void makeslide(){
-
-  }
-
-  void onDonePress() {
-    // Back to the first tab
-    this.goToTab(0);
-  }
 
   void onTabChangeCompleted(index) {
     // Index of current tab is focused
-  }
-
-  Widget renderNextBtn() {
-    return Icon(
-      Icons.navigate_next,
-      color: Color(0xffffcc5c),
-      size: 35.0,
-    );
-  }
-
-  Widget renderDoneBtn() {
-    return Icon(
-      Icons.done,
-      color: Color(0xffffcc5c),
-    );
-  }
-
-  Widget renderSkipBtn() {
-    return Icon(
-      Icons.skip_next,
-      color: Color(0xffffcc5c),
-    );
   }
 
   List<Widget> renderListCustomTabs() {
@@ -238,6 +221,9 @@ class ShowSlidesState extends State<ShowSlides> {
           margin: EdgeInsets.only(bottom: 60.0, top: 60.0),
           child: ListView(
             children: <Widget>[
+              Container(
+                padding: EdgeInsets.all(35),
+              ),
               GestureDetector(
                   child: Image.asset(
                     currentSlide.pathImage,
@@ -258,10 +244,10 @@ class ShowSlidesState extends State<ShowSlides> {
                   currentSlide.description,
                   style: currentSlide.styleDescription,
                   textAlign: TextAlign.center,
-                  maxLines: 5,
+                  maxLines: 20,
                   overflow: TextOverflow.ellipsis,
                 ),
-                margin: EdgeInsets.all(20.0),
+                margin: EdgeInsets.all(5.0),
               ),
             ],
           ),
@@ -274,7 +260,6 @@ class ShowSlidesState extends State<ShowSlides> {
   @override
   Widget build(BuildContext context) {
     return new IntroSlider(
-
       // List slides
       slides: this.slides,
 
