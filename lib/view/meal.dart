@@ -4,51 +4,39 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'intro_slider.dart';
 import 'slide_object.dart';
 import 'dot_animation_enum.dart';
-
+import 'dart:async';
+import 'package:intl/intl.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class Mealview extends StatefulWidget{
-  Mealview({Key key}) : super(key:key);
+  Mealview({Key key, this.day }) : super(key:key);
 
+  String day;
   @override
-  MealviewState createState() => new MealviewState();
+  State<StatefulWidget> createState() => new MealviewState();
 }
 
 class MealviewState extends State<Mealview>{
-  String Meal;
+  var Meal;
+  String day;
 
-  static var now = new DateTime.now();
-  static var date = now.day;
-  static String day = date.toString();
-
-  Future<String> getMeal() async {
+  static Future<String> getMeal(String day) async {
     String tmp;
-
     await Firestore.instance
         .collection('meals')
         .document(day)
         .get()
         .then((DocumentSnapshot ds) async {
-      // use ds as a snapshot
       tmp = ds['meal'].toString();
     });
-    return tmp;
 
+    return tmp;
   }
 
   void initState(){
     print("initial for MealviewState");
-    getMeal();
-    Firestore.instance
-        .collection('meals')
-        .document(day)
-        .get()
-        .then((DocumentSnapshot ds) async {
-      // use ds as a snapshot
-      var tmp = await ds['meal'];
-      Meal = tmp;
-    });
-
-    print(Meal);
+    day = widget.day;
+    super.initState();
   }
 
   Widget _buildWaitingScreen() {
@@ -60,19 +48,17 @@ class MealviewState extends State<Mealview>{
     );
   }
 
-
-
   @override
   Widget build(BuildContext context){
     return new Container(
         child: FutureBuilder<String>(
-          future: getMeal(),
+          future: getMeal(day),
           builder: (BuildContext context, AsyncSnapshot<String> snapshot){
             if (snapshot.hasData){
               print(snapshot.data + 'snapshot data');
               return ShowSlides(meal: snapshot.data);
             }else{
-              print('no data');
+              print('no data..');
               return _buildWaitingScreen();
             }
           },
@@ -84,8 +70,7 @@ class MealviewState extends State<Mealview>{
 
 class ShowSlides extends StatefulWidget {
   ShowSlides({Key key, this.meal}) : super(key: key);
-
-  String meal;
+  var meal;
   @override
   ShowSlidesState createState() => new ShowSlidesState();
 }
@@ -94,25 +79,12 @@ class ShowSlidesState extends State<ShowSlides> {
   List<Slide> slides = new List();
 
   Function goToTab;
-
-  static var now = new DateTime.now();
-  static var date = now.day;
-  static String day = date.toString();
-
-
-
-
   static var meal;
-
   static String morning= "";
   static String Lunch= "";
   static String Dinner = "";
 
-
-  @override
-  void initState() {
-    super.initState();
-    meal = widget.meal;
+  void formatmeal(){
     if(meal == null){
       meal = '[] [] []';
     }
@@ -138,7 +110,13 @@ class ShowSlidesState extends State<ShowSlides> {
       Lunch = meal.substring(check[1]+4, check[2]);
       Dinner = meal.substring(check[2]+4);
     }
+  }
 
+  @override
+  void initState() {
+    super.initState();
+    meal = widget.meal;
+    formatmeal();
     slides.add (
       new Slide (
         title: "Morning",
@@ -259,28 +237,49 @@ class ShowSlidesState extends State<ShowSlides> {
 
   @override
   Widget build(BuildContext context) {
-    return new IntroSlider(
-      // List slides
-      slides: this.slides,
-
-      // Dot indicator
-      colorDot: Color(0xffffcc5c),
-      sizeDot: 13.0,
-      typeDotAnimation: dotSliderAnimation.SIZE_TRANSITION,
-
-      // Tabs
-      listCustomTabs: this.renderListCustomTabs(),
-      backgroundColorAllSlides: Colors.white,
-      refFuncGoToTab: (refFunc) {
-        this.goToTab = refFunc;
-      },
-
-      // Show or hide status bar
-      shouldHideStatusBar: true,
-
-      // On tab change completed
-      onTabChangeCompleted: this.onTabChangeCompleted,
+    return new Scaffold(
+      body: new IntroSlider(
+        // List slides
+        slides: this.slides,
+        // Dot indicator
+        colorDot: Color(0xffffcc5c),
+        sizeDot: 13.0,
+        typeDotAnimation: dotSliderAnimation.SIZE_TRANSITION,
+        // Tabs
+        listCustomTabs: this.renderListCustomTabs(),
+        backgroundColorAllSlides: Colors.white,
+        refFuncGoToTab: (refFunc) {
+          this.goToTab = refFunc;
+        },
+        // Show or hide status bar
+        shouldHideStatusBar: true,
+        // On tab change completed
+        onTabChangeCompleted: this.onTabChangeCompleted,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          var currenttime = new DateTime.now();
+          var year = currenttime.year;
+          var month = currenttime.month;
+          DatePicker.showDatePicker(context,
+              showTitleActions: true,
+              minTime: DateTime(year, month, 1),
+              maxTime: DateTime(year, month, 31), onChanged: (date) {
+                print('change $date');
+              }, onConfirm: (date) {
+                print('confirm $date');
+                String newday = date.day.toString();
+                print(newday);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => Mealview(day: newday)));
+              }, currentTime: DateTime.now(), locale: LocaleType.en);
+//          Navigator.push(context, MaterialPageRoute(builder: (context) => Mealview(day: '4',)));
+          // Add your onPressed code here!
+        },
+        child: Icon(Icons.calendar_today),
+        backgroundColor: Colors.green,
+      ),
     );
+
   }
 
   Widget _buildWaitingScreen() {

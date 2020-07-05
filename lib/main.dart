@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kmlameals/view/meal.dart';
 import 'dart:async';
+import 'package:kmlameals/resource/firebasefumc.dart';
 
 void main() {
   runApp(new MyApp());
@@ -10,6 +11,10 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var now = new DateTime.now();
+    var date = now.day;
+    String day = date.toString();
+
     return new MaterialApp(
         title: 'Minjok Herald',
         debugShowCheckedModeBanner: false,
@@ -18,7 +23,7 @@ class MyApp extends StatelessWidget {
         ),
         home: new SplashScreen(),
         routes: <String, WidgetBuilder>{
-          '/HomeScreen': (BuildContext context) => new Mealview()});
+          '/HomeScreen': (BuildContext context) => new Mealview(day:day)});
 
 //        home: new RootPage(auth: new Auth()));
   }
@@ -32,7 +37,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   startTime() async {
-    var _duration = new Duration(seconds: 2);
+    var _duration = new Duration(seconds: 1);
     return new Timer(_duration, navigationPage);
   }
 

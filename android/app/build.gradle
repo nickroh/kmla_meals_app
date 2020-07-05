@@ -42,7 +42,7 @@ android {
         applicationId "com.dotnet.kmlameals"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode flutterVersionCode.toInteger()
+        versionCode flutterVersionCode.toInteger()+1
         versionName flutterVersionName
     }
 
